@@ -1,0 +1,33 @@
+import time
+import pyautogui
+import cv2
+import numpy as np
+from PIL import Image
+
+def screenshot():
+    screenshot = pyautogui.screenshot()
+    screenshot = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+    return screenshot
+
+def find_image(template_path, screenshot, threshold=0.8):
+    template = cv2.imread(template_path, 0)
+    res = cv2.matchTemplate(screenshot, template, cv2.TM_CCOEFF_NORMED)
+    loc = np.where(res >= threshold)
+    if len(loc[0]) > 0:
+        return True
+    return False
+
+# 画像パスとキー配置
+images_to_find = [
+    {"path": "C:", "key": "a"},
+    {"path": "C:", "key": "b"},
+    {"path": "C:", "key": "c"}
+]
+
+while True:
+    screen = screenshot()
+    for item in images_to_find:
+        if find_image(item["path"], screen):
+            pyautogui.press(item["key"])
+            print(f"Pressed {item['key']} for {item['path']}")
+    time.sleep(1)
